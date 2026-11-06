@@ -1,4 +1,3 @@
-
 package com.shoaib.ai;
 
 import android.app.Activity;
@@ -10,11 +9,11 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.RecognitionListener;
 import android.speech.tts.TextToSpeech;
-import android.view.View;
-import android.widget.*;
+import android.view.Gravity;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.view.Gravity;
+import android.widget.*;
+import android.content.res.ColorStateList;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -32,65 +31,81 @@ public class MainActivity extends Activity {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.rgb(12, 18, 35));
+        root.setPadding(8, 5, 8, 5);
 
         TextView title = new TextView(this);
         title.setText("✦ Shoaib AI");
-        title.setTextSize(26);
+        title.setTextSize(20);
         title.setTypeface(null, Typeface.BOLD);
         title.setTextColor(Color.WHITE);
-        title.setPadding(20, 25, 20, 20);
+        title.setPadding(10, 8, 10, 8);
         root.addView(title);
 
         ScrollView scroll = new ScrollView(this);
         messages = new LinearLayout(this);
         messages.setOrientation(LinearLayout.VERTICAL);
-        messages.setPadding(15, 15, 15, 15);
+        messages.setPadding(6, 6, 6, 6);
         scroll.addView(messages);
 
         root.addView(scroll, new LinearLayout.LayoutParams(
             -1, 0, 1
         ));
 
-        addMessage("Hello! I am Shoaib AI. How can I help you?", false);
+        addMessage("Hello! I am Shoaib AI. How can I help?", false);
 
         LinearLayout controls = new LinearLayout(this);
-        controls.setPadding(10, 10, 10, 15);
         controls.setGravity(Gravity.CENTER_VERTICAL);
+        controls.setPadding(2, 4, 2, 4);
 
         input = new EditText(this);
-        input.setHint("Ask me anything...");
+        input.setHint("Ask anything...");
+        input.setTextSize(14);
+        input.setSingleLine(true);
+        input.setPadding(8, 5, 8, 5);
         input.setTextColor(Color.WHITE);
         input.setHintTextColor(Color.LTGRAY);
-        input.setSingleLine(true);
         input.setBackgroundTintList(
-            android.content.res.ColorStateList.valueOf(Color.CYAN)
+            ColorStateList.valueOf(Color.CYAN)
         );
 
         controls.addView(input, new LinearLayout.LayoutParams(
-            0, -2, 1
+            0, 42, 1
         ));
 
         Button mic = new Button(this);
         mic.setText("🎤");
-        controls.addView(mic);
+        mic.setTextSize(12);
+        controls.addView(mic, new LinearLayout.LayoutParams(
+            48, 42
+        ));
 
         Button send = new Button(this);
-        send.setText("Send");
-        controls.addView(send);
+        send.setText("➤");
+        send.setTextSize(16);
+        controls.addView(send, new LinearLayout.LayoutParams(
+            48, 42
+        ));
 
         Button voice = new Button(this);
         voice.setText("🔊");
-        controls.addView(voice);
+        voice.setTextSize(12);
+        controls.addView(voice, new LinearLayout.LayoutParams(
+            48, 42
+        ));
 
         root.addView(controls);
         setContentView(root);
 
         send.setOnClickListener(v -> {
             String message = input.getText().toString().trim();
+
             if (!message.isEmpty()) {
                 addMessage(message, true);
                 input.setText("");
-                addMessage("OpenAI connection will be configured next.", false);
+                addMessage(
+                    "OpenAI connection will be configured next.",
+                    false
+                );
             }
         });
 
@@ -117,28 +132,26 @@ public class MainActivity extends Activity {
     void addMessage(String text, boolean user) {
         TextView bubble = new TextView(this);
         bubble.setText(text);
-        bubble.setTextSize(16);
+        bubble.setTextSize(14);
         bubble.setTextColor(Color.WHITE);
-        bubble.setPadding(18, 14, 18, 14);
-        bubble.setBackgroundColor(user ?
-            Color.rgb(35, 95, 170) :
-            Color.rgb(35, 48, 70));
+        bubble.setPadding(12, 8, 12, 8);
+
+        bubble.setBackgroundColor(user
+            ? Color.rgb(35, 95, 170)
+            : Color.rgb(35, 48, 70));
 
         LinearLayout.LayoutParams params =
-            new LinearLayout.LayoutParams(
-                -2, -2
-            );
-        params.setMargins(5, 8, 5, 8);
-        params.gravity = user ?
-            Gravity.RIGHT : Gravity.LEFT;
+            new LinearLayout.LayoutParams(-2, -2);
+
+        params.setMargins(3, 4, 3, 4);
+        params.gravity = user ? Gravity.RIGHT : Gravity.LEFT;
 
         messages.addView(bubble, params);
     }
 
     void startVoice() {
         if (!SpeechRecognizer.isRecognitionAvailable(this)) {
-            Toast.makeText(this,
-                "Speech recognition unavailable",
+            Toast.makeText(this, "Speech recognition unavailable",
                 Toast.LENGTH_SHORT).show();
             return;
         }
@@ -156,54 +169,41 @@ public class MainActivity extends Activity {
         recognizer = SpeechRecognizer.createSpeechRecognizer(this);
 
         recognizer.setRecognitionListener(new RecognitionListener() {
-            @Override
-            public void onReadyForSpeech(Bundle params) {}
-
-            @Override
+            public void onReadyForSpeech(Bundle b) {}
             public void onBeginningOfSpeech() {}
-
-            @Override
-            public void onRmsChanged(float rmsdB) {}
-
-            @Override
-            public void onBufferReceived(byte[] buffer) {}
-
-            @Override
+            public void onRmsChanged(float r) {}
+            public void onBufferReceived(byte[] b) {}
             public void onEndOfSpeech() {}
 
-            @Override
             public void onError(int error) {
                 Toast.makeText(MainActivity.this,
-                    "Voice recognition error: " + error,
+                    "Voice error: " + error,
                     Toast.LENGTH_SHORT).show();
             }
 
-            @Override
             public void onResults(Bundle results) {
-                ArrayList<String> data =
-                    results.getStringArrayList(
-                        SpeechRecognizer.RESULTS_RECOGNITION
-                    );
+                ArrayList<String> data = results.getStringArrayList(
+                    SpeechRecognizer.RESULTS_RECOGNITION
+                );
 
                 if (data != null && !data.isEmpty()) {
                     input.setText(data.get(0));
                 }
             }
 
-            @Override
-            public void onPartialResults(Bundle results) {}
-
-            @Override
-            public void onEvent(int eventType, Bundle params) {}
+            public void onPartialResults(Bundle b) {}
+            public void onEvent(int e, Bundle b) {}
         });
 
         Intent intent = new Intent(
             RecognizerIntent.ACTION_RECOGNIZE_SPEECH
         );
+
         intent.putExtra(
             RecognizerIntent.EXTRA_LANGUAGE_MODEL,
             RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
         );
+
         intent.putExtra(
             RecognizerIntent.EXTRA_LANGUAGE,
             Locale.getDefault()
